@@ -1,0 +1,130 @@
+#!/usr/bin/bash
+
+# VERSION 0.1
+# TODO: Fix dependency check
+
+# example: ./spoti-cli https://open.spotify.com/album/1i4Ju3OL0Tq6QaAO2OUVdE
+
+ytLinkGrab(){
+    # this is stolen code
+    read query
+
+    [ -z "$query" ] && exit
+
+    # sanitise the query
+    query=$(sed \
+            -e 's|+|%2B|g'\
+            -e 's|#|%23|g'\
+            -e 's|&|%26|g'\
+            -e 's| |+|g'\
+            <<< "$query")
+    # fetch the results with the $query and
+    # delete all escaped characters
+    response="$(curl -s "https://www.youtube.com/results?search_query=$query" |\
+            sed 's|\\.||g')"
+    # if unable to fetch the youtube results page, inform and exit
+    if ! grep -q "script" <<< "$response"; then die "unable to fetch yt"; exit 1; fi
+    # regex expression to match video and playlist entries from yt result page
+    vgrep='"videoRenderer":{"videoId":"\K.{11}".+?"text":".+?[^\\](?=")'
+    pgrep='"playlistRenderer":{"playlistId":"\K.{34}?","title":{"simpleText":".+?[^\"](?=")'
+    # grep the id and title
+    # return them in format id (type) title
+    getresults() {
+              grep -oP "$1" <<< "$response" |\
+                    awk -F\" -v p="$2" '{ print $1 "\t" p " " $NF}'
+    }
+    # get the list of videos/playlists and their ids in videoids and playlistids
+    videoids=$(getresults "$vgrep")
+    # if there are videos, append them to list
+    [ -n "$videoids" ] && ids="$ids$videoids"
+    # url prefix for videos
+    videolink="https://youtu.be/"
+
+            choice=$(echo -e "$ids" | cut -d'	' -f2 | head -n1)
+            if [ -z "$choice" ]; then exit; fi	# if esc-ed then exit
+            id=$(echo -e "$ids" | grep -Fwm1 "$choice" | cut -d'	' -f1) # get id of choice
+            case $id in
+                    # 11 digit id = video
+                    ???????????) echo "$videolink$id";;
+                    *) exit ;;
+            esac
+}
+
+
+print_debug(){
+    echo "$@"
+}
+
+die(){
+    echo "$@"
+    exit 1
+}
+
+console(){
+    echo '==>' "$@"
+}
+
+depCheck(){
+    prog="$(command -v ${1})"
+    [ -n "${prog}" ] || return 1
+}
+
+
+depCheck sed || { cmdsUnavailable="sed " && missingCmd=1; }
+depCheck grep || { cmdsUnavailable+="grep " && missingCmd=1; }
+depCheck curl || { cmdsUnavailable+="curl " && missingCmd=1; }
+depCheck pup || { cmdsUnavailable+="pup " && missingCmd=1; }
+depCheck yt-dlp || { cmdsUnavailable+="yt-dlp" && missingCmd=1; }
+
+if [ "${missingCmd}" = 1 ]
+then
+	{ console 'Run "sudo apt install' "$(echo ${cmdsUnavailable})"'" (without quotes)'; exit 1; }
+fi
+
+[ -z "${1}" ] && die "Usage: spoti-cli [SPOTIFY PLAYLIST]"
+
+console 'Finding playlist ID'
+playlist="${1}"
+playlistId="$(echo $playlist | cut -d'/' -f5 )"
+albumOrPlaylist="$(echo $playlist | cut -d'/' -f4 )"
+
+console 'Entering directory'
+[ -d ~/.cache/spoti-cli ] || mkdir -p ~/.cache/spoti-cli
+cd ~/.cache/spoti-cli || die "cd failed, aborting"
+
+console 'Downloading playlist'
+curl -O "https://open.spotify.com/${albumOrPlaylist}/${playlistId}"
+
+console 'Finding album name'
+pup 'meta[property="og:title"] attr{content}' < "${playlistId}" > "${playlistId}_albumName"
+albumName="$(cat ${playlistId}_albumName)"
+
+console 'Getting names'
+pup -p 'button attr{aria-label}' < "${playlistId}" |
+    grep "^track" |
+    cut -c 7- > "${playlistId}_names"
+
+console 'Searching YouTube for links; please be patient'
+while read line
+do
+    echo '   ' "Searching ${line}"
+    echo "${line} explicit" | ytLinkGrab
+done < "${playlistId}_names" | tee "${playlistId}_links" >/dev/null
+ 
+console 'Entering download directory'
+[ -d "downloads" ] || mkdir downloads
+cd downloads || die "cd failed, aborting"
+[ -d "${albumName}" ] || mkdir "${albumName}"
+cd "${albumName}" || die "cd failed, aborting"
+
+console 'Downloading; this might take a while'
+i=0
+total=$(wc -l < ../"${playlistId}_links")
+while read line
+do
+    yt-dlp --sponsorblock-remove default -f "bestaudio/best" -ciw -o "%(title)s.%(ext)s" -v --extract-audio --audio-quality 0 --audio-format mp3 "${line}" >/dev/null 2>&1
+    ((i++))
+     console "${i} out of ${total} downloaded"
+done < ../"${playlistId}_links"
+
+console "Done. Music is in $PWD"

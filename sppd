@@ -1,9 +1,10 @@
 #!/usr/bin/bash
 
-# VERSION 0.1
-# TODO: Fix dependency check
+# VERSION 0.1.1
+# TODO: Fix dependency check; Use XDG or something for cache dir
+# CHANGED: Replaced every instance of "spoti-cli" to "sppd"
 
-# example: ./spoti-cli https://open.spotify.com/album/1i4Ju3OL0Tq6QaAO2OUVdE
+# example: ./sppd https://open.spotify.com/album/1i4Ju3OL0Tq6QaAO2OUVdE
 
 ytLinkGrab(){
     # this is stolen code
@@ -81,7 +82,7 @@ then
 	{ console 'Run "sudo apt install' "$(echo ${cmdsUnavailable})"'" (without quotes)'; exit 1; }
 fi
 
-[ -z "${1}" ] && die "Usage: spoti-cli [SPOTIFY PLAYLIST]"
+[ -z "${1}" ] && die "Usage: sppd [SPOTIFY PLAYLIST]"
 
 console 'Finding playlist ID'
 playlist="${1}"
@@ -89,8 +90,8 @@ playlistId="$(echo $playlist | cut -d'/' -f5 )"
 albumOrPlaylist="$(echo $playlist | cut -d'/' -f4 )"
 
 console 'Entering directory'
-[ -d ~/.cache/spoti-cli ] || mkdir -p ~/.cache/spoti-cli
-cd ~/.cache/spoti-cli || die "cd failed, aborting"
+[ -d ~/.cache/sppd ] || mkdir -p ~/.cache/sppd
+cd ~/.cache/sppd || die "cd failed, aborting"
 
 console 'Downloading playlist'
 curl -O "https://open.spotify.com/${albumOrPlaylist}/${playlistId}"

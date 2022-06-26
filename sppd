@@ -1,11 +1,12 @@
 #!/usr/bin/bash
 
-# VERSION 0.1.1
-# TODO: Fix dependency check; Use XDG or something for cache dir
-# CHANGED: Replaced every instance of "spoti-cli" to "sppd"
+# VERSION 0.1.2
+# TODO: Check if the playlist given is actually a spotify playlist
+# CHANGED: Fixed dependency check; Used XDG for cache dir
 
 # example: ./sppd https://open.spotify.com/album/1i4Ju3OL0Tq6QaAO2OUVdE
 
+cacheDir="${XDG_CACHE_HOME:-$HOME/.cache}"
 ytLinkGrab(){
     # this is stolen code
     read query
@@ -75,7 +76,7 @@ depCheck sed || { cmdsUnavailable="sed " && missingCmd=1; }
 depCheck grep || { cmdsUnavailable+="grep " && missingCmd=1; }
 depCheck curl || { cmdsUnavailable+="curl " && missingCmd=1; }
 depCheck pup || { cmdsUnavailable+="pup " && missingCmd=1; }
-depCheck yt-dlp || { cmdsUnavailable+="yt-dlp" && missingCmd=1; }
+depCheck yt-dlp || { cmdsUnavailable+="; pip install yt-dlp" && missingCmd=1; }
 
 if [ "${missingCmd}" = 1 ]
 then
@@ -90,8 +91,8 @@ playlistId="$(echo $playlist | cut -d'/' -f5 )"
 albumOrPlaylist="$(echo $playlist | cut -d'/' -f4 )"
 
 console 'Entering directory'
-[ -d ~/.cache/sppd ] || mkdir -p ~/.cache/sppd
-cd ~/.cache/sppd || die "cd failed, aborting"
+[ -d ~/"${cacheDir}"/sppd ] || mkdir -p ~/"${cacheDir}"/sppd
+cd ~/"${cacheDir}"/sppd || die "cd failed, aborting"
 
 console 'Downloading playlist'
 curl -O "https://open.spotify.com/${albumOrPlaylist}/${playlistId}"

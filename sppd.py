@@ -63,7 +63,7 @@ for link in soup.find_all('button'):
 print("Searching YouTube, this will take a while")
 # Put 2 and 2 together and search youtube
 for ogname in namelist:
-    s = Search(albumname + ' ' + ogname)
+    s = Search(albumname + ' ' + ogname + ' explicit')
     ytlink = s.results[0]
     print(ytlink.watch_url)
     ytlist.append(ytlink.watch_url)

@@ -1,12 +1,13 @@
 #!/usr/bin/bash
 
-# VERSION 0.1.2
+# VERSION 0.1.3
 # TODO: Check if the playlist given is actually a spotify playlist
-# CHANGED: Fixed dependency check; Used XDG for cache dir
+# CHANGED: Fixed some bugs; added -o option
 
 # example: ./sppd https://open.spotify.com/album/1i4Ju3OL0Tq6QaAO2OUVdE
 
 cacheDir="${XDG_CACHE_HOME:-$HOME/.cache}"
+downloadDir="downloads"
 ytLinkGrab(){
     # this is stolen code
     read query
@@ -85,20 +86,31 @@ fi
 
 [ -z "${1}" ] && die "Usage: sppd [SPOTIFY PLAYLIST]"
 
+while getopts o: flag
+do
+    case "${flag}" in
+        o) downloadDir="${OPTARG}";;
+        *) exit;;
+    esac
+done
+shift $((OPTIND-1))
+
+[ -z "${1}" ] && die "Usage: sppd [SPOTIFY PLAYLIST]"
+
 console 'Finding playlist ID'
 playlist="${1}"
 playlistId="$(echo $playlist | cut -d'/' -f5 )"
 albumOrPlaylist="$(echo $playlist | cut -d'/' -f4 )"
 
 console 'Entering directory'
-[ -d ~/"${cacheDir}"/sppd ] || mkdir -p ~/"${cacheDir}"/sppd
-cd ~/"${cacheDir}"/sppd || die "cd failed, aborting"
+[ -d "${cacheDir}"/sppd ] || mkdir -p "${cacheDir}"/sppd
+cd "${cacheDir}"/sppd || die "cd failed, aborting"
 
 console 'Downloading playlist'
 curl -O "https://open.spotify.com/${albumOrPlaylist}/${playlistId}"
 
 console 'Finding album name'
-pup 'meta[property="og:title"] attr{content}' < "${playlistId}" > "${playlistId}_albumName"
+pup 'meta[property="og:title"] attr{content}' < "${playlistId}" > "${playlistId}_albumName" || die "couldn't find album name"
 albumName="$(cat ${playlistId}_albumName)"
 
 console 'Getting names'
@@ -109,24 +121,23 @@ pup -p 'button attr{aria-label}' < "${playlistId}" |
 console 'Searching YouTube for links; please be patient'
 while read line
 do
-    echo '   ' "Searching ${line}"
     echo "${line} explicit" | ytLinkGrab
 done < "${playlistId}_names" | tee "${playlistId}_links" >/dev/null
  
 console 'Entering download directory'
-[ -d "downloads" ] || mkdir downloads
-cd downloads || die "cd failed, aborting"
+[ -d "${downloadDir}" ] || mkdir "${downloadDir}"
+cd "${downloadDir}" || die "cd failed, aborting"
 [ -d "${albumName}" ] || mkdir "${albumName}"
 cd "${albumName}" || die "cd failed, aborting"
 
 console 'Downloading; this might take a while'
 i=0
-total=$(wc -l < ../"${playlistId}_links")
+total=$(wc -l < ${cacheDir}/sppd/"${playlistId}_links")
 while read line
 do
-    yt-dlp --sponsorblock-remove default -f "bestaudio/best" -ciw -o "%(title)s.%(ext)s" -v --extract-audio --audio-quality 0 --audio-format mp3 "${line}" >/dev/null 2>&1
+    yt-dlp --sponsorblock-remove default -f "bestaudio/best" -ciw -o "%(title)s.%(ext)s" -v --extract-audio --audio-quality 0 --audio-format mp3 "${line}" 
     ((i++))
      console "${i} out of ${total} downloaded"
-done < ../"${playlistId}_links"
+done < ${cacheDir}/sppd/"${playlistId}_links"
 
 console "Done. Music is in $PWD"

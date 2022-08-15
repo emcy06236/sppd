@@ -30,7 +30,7 @@ python3 sppd.py -o ~\Donwloads https://open.spotify.com/album/1i4Ju3OL0Tq6QaAO2O
 ## Linux
 ### Installation
 ```
-sudo wget 'https://raw.githubusercontent.com/emcy06236/sppd/master/sppd.py' -O /usr/local/bin/sppd
+sudo wget 'https://raw.githubusercontent.com/emcy06236/sppd/master/sppd.py' -O /usr/local/bin/sppd; python3 -m pip install --user pytube beautifulsoup4
 ```
 
 ### Running

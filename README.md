@@ -5,9 +5,13 @@ Download everything from your Spotify playlist/album.
 ## Windows
 ### Installation
 Install Python
+
 Open command prompt
+
 Type `python3 -m pip install pytube beautifulsoup4`
+
 Open any browser and paste [this url](https://raw.githubusercontent.com/emcy06236/sppd/master/sppd.py)
+
 Press Ctrl+S
 
 ### Running

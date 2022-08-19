@@ -8,13 +8,19 @@ Install Python
 
 Open command prompt
 
-Type `python3 -m pip install pytube beautifulsoup4`
+Type `py -m pip install pytube beautifulsoup4`
 
 Open any browser and paste [this url](https://raw.githubusercontent.com/emcy06236/sppd/master/sppd.py)
 
 Press Ctrl+S
 
+Save it to downloads or wherever
+
 ### Running
+Find where you downloaded the script in the file manager
+
+Go to the address bar and type `cmd`
+
 Example:
 ```
 py sppd.py https://open.spotify.com/album/1i4Ju3OL0Tq6QaAO2OUVdE

@@ -17,14 +17,14 @@ Press Ctrl+S
 ### Running
 Example:
 ```
-python3 sppd.py https://open.spotify.com/album/1i4Ju3OL0Tq6QaAO2OUVdE
+py sppd.py https://open.spotify.com/album/1i4Ju3OL0Tq6QaAO2OUVdE
 ```
 This will download songs to your "Music" folder in webm format (cus youtube)
 To change the folder, just use the -o flag.
 
 Example:
 ```
-python3 sppd.py -o ~\Donwloads https://open.spotify.com/album/1i4Ju3OL0Tq6QaAO2OUVdE
+py sppd.py -o ~\Donwloads https://open.spotify.com/album/1i4Ju3OL0Tq6QaAO2OUVdE
 ```
 
 ## Linux

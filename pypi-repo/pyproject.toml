@@ -1,0 +1,26 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "sppd"
+version = "0.1.0"
+authors = [
+  { name="emcy06236", email="emcy06236@proton.me" },
+]
+description = "Spotify playlist downloader"
+readme = "README.md"
+license = "GPL-3.0"
+dependencies = [
+    "beautifulsoup4",
+    "pytube"
+]
+requires-python = ">=3.7"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "Operating System :: OS Independent",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/emcy06236/sppd"
+"Bug Tracker" = "https://github.com/emcy06236/sppd/issues"

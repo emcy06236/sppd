@@ -8,29 +8,19 @@ Install Python
 
 Open command prompt
 
-Type `py -m pip install pytube beautifulsoup4`
-
-Open any browser and paste [this url](https://raw.githubusercontent.com/emcy06236/sppd/master/sppd.py)
-
-Press Ctrl+S
-
-Save it to downloads or wherever
+Type `py -m pip install --user sppd`
 
 ### Running
-Find where you downloaded the script in the file manager
-
-Go to the address bar and type `cmd`
-
 Example:
 ```
-py sppd.py https://open.spotify.com/album/1i4Ju3OL0Tq6QaAO2OUVdE
+py -m sppd https://open.spotify.com/album/1i4Ju3OL0Tq6QaAO2OUVdE
 ```
 This will download songs to your "Music" folder in webm format (cus youtube)
 To change the folder, just use the -o flag.
 
 Example:
 ```
-py sppd.py -o ~\Donwloads https://open.spotify.com/album/1i4Ju3OL0Tq6QaAO2OUVdE
+py -m sppd -o ~\Donwloads https://open.spotify.com/album/1i4Ju3OL0Tq6QaAO2OUVdE
 ```
 
 ## Linux

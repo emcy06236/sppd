@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "sppd"
-version = "0.1.0"
+version = "0.1.1"
 authors = [
   { name="emcy06236", email="emcy06236@proton.me" },
 ]
@@ -20,6 +20,9 @@ classifiers = [
     "Programming Language :: Python :: 3",
     "Operating System :: OS Independent",
 ]
+
+[project.scripts]
+sppd = 'sppd:sppd'
 
 [project.urls]
 "Homepage" = "https://github.com/emcy06236/sppd"

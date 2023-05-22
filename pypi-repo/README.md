@@ -1,7 +1,7 @@
 # sppd - spotify playlist downloader
 ## Windows
 ```
-py -m sppd [PLAYLIST]
+sppd [PLAYLIST]
 ```
 ## Anything else
 ```

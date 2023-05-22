@@ -1,8 +1,8 @@
 #!/usr/bin/bash
 
-# VERSION 0.1.3
+# VERSION 0.1.4
 # TODO: Check if the playlist given is actually a spotify playlist
-# CHANGED: Fixed some bugs; added -o option
+# CHANGED: Fixed some bugs
 
 # example: ./sppd https://open.spotify.com/album/1i4Ju3OL0Tq6QaAO2OUVdE
 
@@ -114,9 +114,7 @@ pup 'meta[property="og:title"] attr{content}' < "${playlistId}" > "${playlistId}
 albumName="$(cat ${playlistId}_albumName)"
 
 console 'Getting names'
-pup -p 'button attr{aria-label}' < "${playlistId}" |
-    grep "^track" |
-    cut -c 7- > "${playlistId}_names"
+pup 'span p text{}' < "${playlistId}" >> "${playlistId}_names"
 
 console 'Searching YouTube for links; please be patient'
 while read line

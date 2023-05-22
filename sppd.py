@@ -53,11 +53,10 @@ albumname = rawalbumname[0]['content']
 
 print("Finding song names")
 # Get song names
-for link in soup.find_all('button'):
-    if re.search("track", str(link.get('aria-label'))):
+for link in soup.find_all('div'):
+    if not re.search("None", str(link.get('aria-label'))):
         trackname = link.get('aria-label')
-        name = trackname.removeprefix('track ')
-        clean_name = re.sub('[^\w_.)( -]', '', name)
+        clean_name = re.sub('[^\w_.)( -]', '', trackname)
         namelist.append(clean_name)
 
 print("Searching YouTube, this will take a while")
